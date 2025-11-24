@@ -1,0 +1,24 @@
+Generate an AdminLTE 3 dashboard page with the following components:
+ 
+LAYOUT:
+- Main sidebar with collapsed option
+- Fixed navbar
+- Control sidebar (right sidebar)
+- Fixed layout
+ 
+CONTENT:
+1. Info boxes (3 columns) showing: Total Users, Revenue, Conversion Rate
+2. Charts area with:
+   - Line chart for monthly sales
+   - Pie chart for product categories
+3. DataTable showing recent orders with columns: ID, Customer, Date, Amount, Status
+4. Quick action buttons
+5. Recent activity timeline
+ 
+FEATURES:
+- Dark mode toggle
+- Search functionality in header
+- User profile dropdown
+- Notification bell with badge count
+ 
+Use Bootstrap 5, AdminLTE 3 CSS/JS, Font Awesome, and include sample data.

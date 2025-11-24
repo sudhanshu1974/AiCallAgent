@@ -1,0 +1,102 @@
+# AI Voice Call Agent: Application Flow Summary
+
+## 1. Overview
+
+This document outlines the architecture and workflow of the AI Voice Call Agent application. The application's primary function is to make outbound calls to leads via Twilio, engage them in a conversation guided by an AI model (Gemini), and achieve a specific goal, such as scheduling a follow-up meeting. The application is built in PHP and uses a SQL Server database for data persistence.
+
+## 2. Core Components
+
+The application logic is distributed across several key PHP files:
+
+- **`config.php`**: Stores all configuration variables, including API keys and database credentials.
+- **`Database.php`**: A wrapper class for handling all database connections and queries, providing a singleton instance to the rest of the application.
+- **`new_make_call.php`**: The entry point for initiating a new outbound call. It handles the initial request and instructs Twilio to start the call.
+- **`twilio_webhook.php`**: The initial webhook that Twilio calls when the outbound call connects. Its sole purpose is to provide the first TwiML instruction (the initial greeting and a prompt for the user's response).
+- **`process_industry.php`**: The core of the application. This script manages the entire back-and-forth conversational loop after the initial greeting. It receives user speech input from Twilio, constructs a prompt for the AI, gets the AI's response, and generates the next TwiML instruction.
+- **`Prompt/P_CallFlow_Summary.txt`**: The master prompt file. This text file contains the core instructions, rules, and examples that guide the AI's behavior throughout the conversation.
+
+## 3. Database Schema (SQL Server)
+
+The application requires three tables in a SQL Server database.
+
+**`leads` table:** Stores information about the leads to be called.
+```sql
+CREATE TABLE leads (
+    leadsid INT PRIMARY KEY IDENTITY(1,1),
+    first_name NVARCHAR(MAX),
+    last_name NVARCHAR(MAX),
+    phone_number NVARCHAR(MAX),
+    -- Other lead-related fields...
+);
+```
+
+**`calls` table:** Stores a record for each call made.
+```sql
+CREATE TABLE calls (
+    callid INT PRIMARY KEY IDENTITY(1,1),
+    leadsid INT,
+    callscript NVARCHAR(MAX), -- Stores the initial greeting message
+    timestamp DATETIME2 DEFAULT GETDATE(),
+    status NVARCHAR(MAX),
+    FOREIGN KEY (leadsid) REFERENCES leads(leadsid)
+);
+```
+
+**`call_details` table:** Stores the turn-by-turn history of each conversation.
+```sql
+CREATE TABLE call_details (
+    detail_id INT PRIMARY KEY IDENTITY(1,1),
+    callid INT,
+    user_response NVARCHAR(MAX),
+    ai_response NVARCHAR(MAX),
+    timestamp DATETIME2 DEFAULT GETDATE(),
+    FOREIGN KEY (callid) REFERENCES calls(callid)
+);
+
+-- Index to improve performance of history lookups
+CREATE INDEX idx_call_details_callid ON call_details(callid);
+```
+
+## 4. Call Initiation Flow (Step-by-Step)
+
+1.  An external trigger (e.g., a web frontend, a cron job) sends a **POST request** to `new_make_call.php`. This request must contain the `phoneNumber` to call and the `leadsid` from the `leads` table.
+2.  `new_make_call.php` fetches the lead's `first_name` from the database.
+3.  It generates the initial greeting message (e.g., "Hi, may I please speak with [first_name]?").
+4.  It inserts a new record into the `calls` table, storing the `leadsid` and the initial greeting. The database returns the unique `callid` for this new call.
+5.  The script then uses the Twilio REST API client to create a new outbound call.
+6.  In the API request to Twilio, it specifies the `url` for the webhook that Twilio should call when the recipient answers. This URL points to `BASE_URL/twilio_webhook.php` and includes the `leadsid` and `callid` as URL parameters.
+
+## 5. Conversational Turn Flow (The Main Loop)
+
+This flow begins after the call is connected and is handled primarily by `process_industry.php`.
+
+1.  **Initial Turn:**
+    *   Twilio connects the call and makes a request to `twilio_webhook.php`.
+    *   `twilio_webhook.php` fetches the initial greeting from the `calls` table using the `callid`.
+    *   It generates a TwiML response containing a `<Say>` verb to speak the greeting and a `<Gather>` verb to capture the user's speech.
+    *   The `<Gather>` verb's `action` attribute points to `process_industry.php`, passing the `callid` and `leadsid`.
+
+2.  **Subsequent Turns (The Loop in `process_industry.php`):**
+    *   Twilio captures the user's speech, converts it to text, and makes a POST request to the `action` URL (`process_industry.php`), including the text in the `SpeechResult` parameter.
+    *   `process_industry.php` loads the master instructions from `Prompt/P_CallFlow_Summary.txt`.
+    *   It fetches the entire conversation history for the current `callid` from the `call_details` table.
+    *   It constructs a single, comprehensive prompt for the Gemini API. This prompt includes:
+        *   The master instructions from the prompt file.
+        *   The full conversation history (e.g., "AI: ..., User: ..., AI: ...").
+        *   The latest user input from `SpeechResult`.
+    *   The script calls the Gemini API with this prompt.
+    *   The AI's text response is received.
+    *   The script saves the latest user input and the new AI response as a new entry in the `call_details` table.
+    *   It generates a new TwiML response with a `<Say>` verb for the AI's response and a `<Gather>` verb for the next user input.
+    *   Crucially, the `<Gather>` verb's `action` URL points back to `process_industry.php` itself, ensuring that this script handles every subsequent turn in the conversation.
+
+## 6. Configuration (`config.php`)
+
+The `config.php` file must contain the following constants:
+
+-   `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`: Credentials for the SQL Server database.
+-   `TWILIO_SID`: Your Twilio Account SID.
+-   `TWILIO_TOKEN`: Your Twilio Auth Token.
+-   `TWILIO_PHONE_NUMBER`: The Twilio phone number to make calls from.
+-   `BASE_URL`: The public base URL of the application (e.g., `https://yourdomain.com/aivoiceagent`).
+-   `GEMINI_API_KEY`: Your API key for the Google Gemini API.

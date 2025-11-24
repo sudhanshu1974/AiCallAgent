@@ -1,0 +1,113 @@
+# Comprehensive Application Prompt
+
+## 1. System Overview
+
+This document outlines the requirements for a real-time AI voice agent application. The application's primary purpose is to conduct outbound sales calls to generate leads for Cyber Infrastructure (CIS), a full-cycle software development and consulting company. The system should be built using PHP 8.1 and SQL Server, with no pre-recorded audio files (MP3s, WAVs). Voice communication is handled via Twilio, and the AI is powered by the Gemini Flash 2.5 model. The application also includes a web-based dashboard built with AdminLTE 3 for managing leads and viewing call details.
+
+## 2. Core Functionality
+
+- **Outbound Calling:** The system will initiate outbound calls to a list of leads.
+- **AI-Powered Conversations:** The AI agent, "Sia," will engage in natural conversations with potential customers.
+- **Lead Qualification:** The agent will qualify leads by asking discovery questions and identifying business pain points.
+- **Meeting Scheduling:** The primary goal of the agent is to schedule a 15-30 minute "Scoping & Discovery Call" with a CIS Solution Architect.
+- **Call Logging:** All call details, including user responses and AI responses, will be logged in the database.
+- **Web Dashboard:** A web interface for managing leads, viewing call logs, and monitoring application performance.
+
+## 3. Agent Persona & Voice
+
+- **Name:** Sia
+- **Role:** Voice Communication Agent for CISIN.com
+- **Persona:** Professional, warm, confident, and helpful. A consultative specialist who guides prospects to the right expert.
+- **Tone:** Natural, calm, clear, and value-focused. Avoids sounding robotic or scripted.
+- **Language:** Fluent in English and Hindi, with the ability to switch based on the customer's preference.
+- **Authority:** Casually mention CIS's credentials like "CMMI Level 5," "20+ years of experience," or "Global Partner" to build trust.
+
+## 4. Call Flows
+
+### Cold Calling Script
+
+**Objective:** To book a 15-minute consultation with a Solution Architect.
+
+**Key Principles:**
+- **Guide, Not a Salesperson:** Your job is to guide them to the right expert.
+- **The Goal is ALWAYS the Next Meeting:** Do not try to solve their problem or quote a price on the first call.
+- **Control the Call:** Be polite, but firm. Lead them. Use phrases like, "The best next step is..." and "I'm scheduling that for you right now..."
+
+**Script:**
+
+1.  **Opening:** "Hi Sir/Madam, Good [Morning/Afternoon]. This is [Agent Name] from CIS, a CMMI Level 5 Global Partner. I'm looking to speak with the Project Manager, or someone responsible for strategic decisions in your Web Development or IT department."
+2.  **Gatekeeper/Wrong Person:** (If they say they don't have one) "No problem at all. Who, specifically, would handle decisions regarding the performance or expansion of your primary web platform/app?"
+3.  **Interest Hook:** (Once connected with the right person) "[Target's Name], thanks for taking my call. I visited your website and noticed [mention something specific: recent job post/site feature]. At CIS, we have over 20 years of experience in [mention 2 keywords: e.g., Mobile Apps and e-commerce]."
+4.  **Qualification/Pain Point:** "I'm calling to understand your current project pipeline. Are you currently facing any challenges or bottlenecks with [PHP / .NET] development, or perhaps looking to transition to a more agile development process?"
+5.  **Validate and Pivot:** (After they respond) "That is exactly why I called. We specialize in helping companies like yours overcome those exact roadblocks with our dedicated Solution Architects. The best next step is a quick 15-minute consultation with one of our Solution Architects. They can give you concrete examples of how we've solved [Target's Pain] for other clients."
+6.  **Meeting Close:** "What time works best for a brief discussion? I'm scheduling that for you right now... Great. And what is the best email address and a good Skype ID? I'll be sending that confirmation email."
+7.  **Closing:** "Thanks so much for your time. I look forward to sending that over, and we'll speak soon."
+
+## 5. Technical Stack
+
+- **Backend:** PHP 8.1
+- **Database:** SQL Server
+- **Voice & Telephony:** Twilio
+- **AI Model:** Gemini Flash 2.5 (for voice), Gemini Pro (for other tasks)
+- **Frontend:** AdminLTE 3, Bootstrap 5, Font Awesome
+
+## 6. Database Schema
+
+The database will contain two main tables:
+
+**1. `leads`**
+- `Leadsid` (Primary Key)
+- `FirstName`
+- `LastName`
+- `Title`
+- `Company`
+- `CompanyNameForEmails`
+- `Email`
+- `EmailStatus`
+- `Seniority`
+- `Departments`
+- `Industry`
+- `PersonLinkedinUrl`
+- `Website`
+- `CompanyLinkedinUrl`
+- `Country`
+- `CompanyAddress`
+- `CompanyCity`
+- `CompanyState`
+- `CompanyCountry`
+- `SubsidiaryOf`
+- `EmailSent`
+- `EmailOpen`
+- `EmailBounced`
+- `Replied`
+
+**2. `calls_details`**
+- `CallID` (Primary Key)
+- `LeadID` (Foreign Key to `leads.Leadsid`)
+- `CallScript`
+- `UserResponse`
+- `AIResponse`
+- `DateTime`
+
+## 7. User Interface (AdminLTE 3 Dashboard)
+
+**Layout:**
+- Main sidebar with collapsed option
+- Fixed navbar
+- Control sidebar (right sidebar)
+- Fixed layout
+
+**Content:**
+- **Info Boxes (3 columns):** Total Users, Revenue, Conversion Rate
+- **Charts Area:**
+    - Line chart for monthly sales
+    - Pie chart for product categories
+- **DataTable:** Recent orders with columns: ID, Customer, Date, Amount, Status
+- **Quick Action Buttons**
+- **Recent Activity Timeline**
+
+**Features:**
+- Dark mode toggle
+- Search functionality in the header
+- User profile dropdown
+- Notification bell with a badge count

@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script>
+        const socket = new WebSocket ("ws://localhost:8081/media?leadId=10&callId=15")
+        //    ("wss://sd8081.elb.cisinlive.com/media?leadId=1&callId=15");
+           console.log(socket, "socket********");
+
+          socket.onopen = () => {
+            console.log("Connected to websocket!");
+            socket.send("Hello from browser");
+          };
+
+          socket.onmessage = (event) => {
+            console.log("Message from server:", event.data);
+          };
+
+          socket.onerror = (err) => {
+            console.error("WebSocket error:", err);
+          };
+    </script>
+</body>
+</html>

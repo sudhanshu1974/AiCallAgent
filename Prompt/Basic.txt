@@ -1,0 +1,2 @@
+we need pure real-time AI voice agent with no MP3s, no WAVs, no WebSocket, and running in PHP 8.1, using  Gemini flash 2.5_twilio for voice calling .create a        │
+│   index.php and in create database with table name leads fields( first_name,last_name, Phone_number, call script, Userresponse, Ai response to log

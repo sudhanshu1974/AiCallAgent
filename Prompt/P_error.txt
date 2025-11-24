@@ -1,0 +1,1 @@
+[2025-11-07 12:53:03] Gemini API call failed: file_get_contents(https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyCWgPScGQMwiiwk4voWJ02aSyof_iziALY): Failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found

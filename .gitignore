@@ -1,0 +1,7 @@
+/vendor/
+/composer.lock
+/config.php
+/log/
+/log/*.log
+node_server/.env
+/.vs/

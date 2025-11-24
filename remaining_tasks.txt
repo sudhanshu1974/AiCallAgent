@@ -1,0 +1,11 @@
+Remaining tasks for tomorrow:
+
+1.  **Create SQL Server Tables:** Execute the `migration_script.sql` file on your SQL Server instance. This will create the necessary tables (`leads`, `calls`, `call_details`).
+
+2.  **Update Configuration:** Open the `config.php` file and fill in your SQL Server connection details for `SQLSRV_SERVERNAME`, `SQLSRV_DATABASE`, `SQLSRV_UID`, and `SQLSRV_PWD`.
+
+
+
+
+
+After completing these steps, your application will be fully running on SQL Server.

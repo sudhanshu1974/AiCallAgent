@@ -1,0 +1,80 @@
+Generate a detailed application flow and system description for a PHP-based voice agent application. The description should cover the following aspects:
+
+**Application Name:** AiSales Voice Agent
+Skillset/Technologies:
+   * PHP: Backend logic.
+   * JavaScript: Frontend interactivity.
+   * jQuery: DOM manipulation and event handling.
+   * HTML/CSS: Frontend structure and styling (AdminLTE).
+
+   * Composer: PHP dependency management.
+
+  APIs Used:
+   * Twilio API: For phone call initiation, management, and TwiML voice interactions.
+   * Gemini API (Google Generative Language API): For AI-driven response generation.
+
+
+**Core Functionality:**
+The application allows a user to initiate outbound phone calls to leads from a web-based dashboard. During the call, an AI voice agent interacts with the recipient, gathers information, and responds dynamically.
+
+**Key Components and Flow:**
+
+1.  **Dashboard (`index.php`):**
+    
+    *   Each lead has a "Call" button.
+    *   Clicking the "Call" button triggers a JavaScript `fetch` request to `make_call.php`.
+
+2.  **Call Initiation (`make_call.php`):**
+    *   Receives a `phoneNumber` via a POST request from the dashboard.
+    *   Uses the Twilio PHP SDK to create an outbound call.
+    *   Configures the Twilio call to use `BASE_URL/twilio_webhook.php` as its webhook URL.
+    *   Logs call initiation details (phone number, Twilio SID) to `log/activity.log`.
+
+3.  **Twilio Webhook (`twilio_webhook.php`):**
+    *   This script is called by Twilio when the outbound call connects.
+    *   It generates TwiML (Twilio Markup Language) instructions.
+    *   It uses a `<Say>` verb to greet the user: "Hello, please tell us your industry."
+    *   It uses a `<Gather>` verb to collect the user's speech input, with the `action` attribute set to `BASE_URL/process_industry.php`.
+
+4.  **Industry Processing (`process_industry.php`):**
+    *   Receives the `SpeechResult` (user's spoken industry) from Twilio.
+    *   Logs the received industry to `log/activity.log`.
+    *   Constructs a prompt for the Gemini API, including the user's industry and a constraint: "Keep the response under 100 characters."
+    *   Calls the `callGemini` function to interact with the Gemini API.
+    *   Uses a `<Say>` verb to speak the Gemini AI's response to the user.
+    *   Uses a `<Gather>` verb to collect further speech input, with the `action` attribute set to `BASE_URL/handle_response.php`.
+
+5.  **Response Handling (`handle_response.php`):**
+    *   Receives the `SpeechResult` (user's subsequent speech) from Twilio.
+    *   Logs the received speech to `log/activity.log`.
+    *   Constructs a prompt for the Gemini API, including the user's speech and a constraint: "Keep the response under 100 characters."
+    *   Calls the `callGemini` function to interact with the Gemini API.
+    
+    *   Uses a `<Say>` verb to speak the Gemini AI's response to the user.
+    *   Uses a `<Gather>` verb to collect further speech input, with the `action` attribute set to `BASE_URL/handle_response.php` (to continue the conversation loop).
+
+6.  **Gemini API Interaction (`callGemini` function):**
+    *   This function is defined in both `process_industry.php` and `handle_response.php`.
+    *   It takes a prompt, constructs a JSON payload, and sends it to the Gemini API endpoint (`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent`).
+    *   It uses cURL for the HTTP request.
+    *   It logs the API request and raw/decoded responses to `log/activity.log` and errors to `log/error.log`.
+    *   It parses the Gemini API response and extracts the generated text.
+
+**Configuration (`config.php`):**
+
+*   Defines `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_PHONE_NUMBER` (Twilio API credentials).
+*   Defines `GEMINI_API_KEY` (Gemini API key).
+*   Defines `BASE_URL` (the public URL for the application, used for Twilio webhooks).
+
+**Logging:**
+*   The application uses `log/activity.log` for general activity and `log/error.log` for errors.
+*   `ini_set('error_log', __DIR__ . '/log/error.log');` is used for PHP errors.
+
+**Database:**
+
+
+**Constraints/Considerations:**
+*   AI responses are constrained to under 100 characters for testing purposes.
+*   All Twilio webhook URLs must be absolute (using `BASE_URL`).
+
+Describe this system in a clear, concise, and structured manner, suitable for documentation or a high-level overview.

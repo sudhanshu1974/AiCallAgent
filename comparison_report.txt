@@ -1,0 +1,19 @@
+The files `process_industry.php` and `handle_response.php` are NOT the same.
+
+Here's a summary of their differences:
+
+**`process_industry.php`:**
+- Handles the initial user input for their industry (`$_REQUEST['SpeechResult']`).
+- Creates a new call record in the `Calls` table if `callid` is empty and `leadsid` is provided.
+- Updates the call status to 'in-progress'.
+- The prompt sent to the Gemini API is specific to the user's industry.
+- All `$response->say()` calls now include `['voice' => 'Polly.Joanna']`.
+
+**`handle_response.php`:**
+- Handles subsequent user responses after the initial industry input.
+- Retrieves `leadsid`, `callscript`, and `commid` from `$_GET` parameters.
+- The prompt sent to the Gemini API is based directly on the user's speech.
+- Uses `commid` in some places where `process_industry.php` uses `callid`.
+- Does NOT currently have the `voice` attribute set for its `$response->say()` calls.
+
+In essence, `process_industry.php` is for initiating the call flow and gathering the initial industry information, while `handle_response.php` is designed to manage the ongoing conversation.

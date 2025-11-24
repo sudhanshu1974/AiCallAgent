@@ -1,0 +1,15 @@
+delete database table and create new one    
+
+1)create table leads fileds if exists not create, Leadsid, First NameLast NameTitleCompanyCompany Name for EmailsEmailEmail                                │
+│   StatusSeniorityDepartmentsIndustryPerson Linkedin UrlWebsiteCompany Linkedin UrlCountryCompany AddressCompany CityCompany StateCompany CountrySubsidiary ofEmail SentEmail    │
+
+2)create a new table for calls_details call script, user response, AI response , datatime,LeadID (from leads table) where Records    the calls details  
+│   OpenEmail BouncedReplied
+
+1)remove adminlte3 text
+2) from left menu remove example links
+
+
+
+
+
